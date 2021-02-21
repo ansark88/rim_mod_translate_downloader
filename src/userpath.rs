@@ -20,15 +20,21 @@ fn decide_workshop_dir()-> PathBuf{
     let info = os_info::get();
     let os_type = info.os_type();
 
-    let mut path = PathBuf::new();
-    match os_type{
-        os_info::Type::Windows => path.push(r"C:\"),
-        os_info::Type::Macos => path.push("/Users/hogehoge/Library/Application Support/Steam/steamapps/workshop/content/"),
-        _  => path.push("/home/"), // 未対応
-    }
-
     // 参考: https://yajamon.hatenablog.com/entry/2018/03/05/201202
-    //let path = env::home_dir().unwrap();
+    let home_dir = env::home_dir().unwrap();
+
+    let mut path: PathBuf;
+    match os_type{
+        os_info::Type::Windows => {
+            path = PathBuf::from(r"C:\Program Files (x86)\Steam\steamapps\workshop\content\294100")
+        },
+        os_info::Type::Macos => {
+            path = PathBuf::from(home_dir);
+            path.push("Library/Application Support/Steam/steamapps/workshop/content/")
+        },
+        _  => path = PathBuf::from("/hoge/"), // 未対応
+    };
+
     println!("dir: {}", path.display());
 
     return path

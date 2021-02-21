@@ -1,21 +1,20 @@
+use os_info;
 use std::env;
 use std::path::PathBuf;
-use os_info;
 
-pub struct UserPath{
+pub struct UserPath {
     workshop_dir: PathBuf,
 }
 
-impl UserPath{
-    pub fn new() -> Self{
-        Self{
+impl UserPath {
+    pub fn new() -> Self {
+        Self {
             workshop_dir: decide_workshop_dir(),
         }
     }
-
 }
 
-fn decide_workshop_dir()-> PathBuf{
+fn decide_workshop_dir() -> PathBuf {
     // os判別してsteamからインストールしたrimworldのworkshopのパスを決める
     let info = os_info::get();
     let os_type = info.os_type();
@@ -24,18 +23,18 @@ fn decide_workshop_dir()-> PathBuf{
     let home_dir = env::home_dir().unwrap();
 
     let mut path: PathBuf;
-    match os_type{
+    match os_type {
         os_info::Type::Windows => {
             path = PathBuf::from(r"C:\Program Files (x86)\Steam\steamapps\workshop\content\294100")
-        },
+        }
         os_info::Type::Macos => {
             path = PathBuf::from(home_dir);
             path.push("Library/Application Support/Steam/steamapps/workshop/content/")
-        },
-        _  => path = PathBuf::from("/hoge/"), // 未対応
+        }
+        _ => path = PathBuf::from("/hoge/"), // 未対応
     };
 
     println!("dir: {}", path.display());
 
-    return path
+    return path;
 }

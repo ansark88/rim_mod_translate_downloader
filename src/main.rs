@@ -5,6 +5,7 @@
 // テスト書く
 use clap::{App, Arg};
 
+mod downloader;
 mod userpath;
 
 fn main() {
@@ -19,12 +20,16 @@ fn main() {
             .index(1))
         .get_matches();
 
-    match matches.value_of("url"){
+    let url = matches.value_of("url");
+
+    match url {
         Some(url) => println!("input url: {}", url),
         None => println!("No input url!"),
     }
 
     let userpath = userpath::UserPath::new();
+
+    let downloader = downloader::Downloader::new(userpath, url.unwrap().to_string());
+
+    downloader.download();
 }
-
-

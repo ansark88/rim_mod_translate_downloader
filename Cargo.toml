@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 clap = "3.0.0-beta.2"
 os_info = "3.0"
+url = "2.2.1"

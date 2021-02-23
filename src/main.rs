@@ -6,6 +6,7 @@
 use clap::{App, Arg};
 
 mod downloader;
+mod urlparser;
 mod userpath;
 
 fn main() {

@@ -1,9 +1,10 @@
+use reqwest::Error;
 use std::fs;
 use std::io;
+use tempfile::Builder;
 
 use crate::urlparser::urlparser;
 use crate::userpath::UserPath;
-
 
 pub struct Downloader {
     userpath: UserPath,
@@ -18,16 +19,28 @@ impl Downloader {
         }
     }
 
-    pub fn download(&self) -> Result<String, String> {
-        let url = self.url.to_string();
+    // 参考 https://rust-lang-nursery.github.io/rust-cookbook/web/clients/download.html
+    #[tokio::main]
+    async fn fetch(&self, url: String, id: String) -> Result<(), Error> {
+        let dist_dir = self.userpath.workshop_dir.join(id);
+        println!("dist_dir: {}", dist_dir.display());
 
-        let parse_result = urlparser::parse(url);
-        match parse_result {
-            Ok(id) => Ok(id),
-            Err(e) => {
-                eprintln!("{}", e);
-                return Err(String::from("parse error"));
-            }
-        }
+        // URLに対するzipファイルの場所は以下
+        // https://img.2game.info/re_archive/l/rimworld/files/up_japanese/2205980094/935.zip
+        //let tmp_dir = Builder::new().prefix("tmp").tempdir()?;
+        let content = reqwest::get(&url).await?.text().await?;
+        println!("{}", content);
+        Ok(())
+    }
+
+    pub fn download(&self) -> Result<String, String> {
+        let parse_url = self.url.to_string();
+        let parse_result = urlparser::parse(parse_url).expect("parse error");
+        let id = parse_result.to_string();
+
+        let fetch_url = self.url.to_string();
+        self.fetch(fetch_url, id);
+
+        return Ok(String::from("OK"));
     }
 }

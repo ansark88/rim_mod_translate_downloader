@@ -3,7 +3,7 @@ use std::env;
 use std::path::PathBuf;
 
 pub struct UserPath {
-    workshop_dir: PathBuf,
+    pub workshop_dir: PathBuf,
 }
 
 impl UserPath {

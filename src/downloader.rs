@@ -25,8 +25,6 @@ impl Downloader {
         let dist_dir = self.userpath.workshop_dir.join(id);
         println!("dist_dir: {}", dist_dir.display());
 
-        // URLに対するzipファイルの場所は以下
-        // https://img.2game.info/re_archive/l/rimworld/files/up_japanese/2205980094/935.zip
         //let tmp_dir = Builder::new().prefix("tmp").tempdir()?;
         let content = reqwest::get(&url).await?.text().await?;
         println!("{}", content);
@@ -35,11 +33,16 @@ impl Downloader {
 
     pub fn download(&self) -> Result<String, String> {
         let parse_url = self.url.to_string();
-        let parse_result = urlparser::parse(parse_url).expect("parse error");
-        let id = parse_result.to_string();
+        let parse_result = urlparser::parse(parse_url);
 
-        let fetch_url = self.url.to_string();
-        self.fetch(fetch_url, id);
+        let parse_value = match parse_result {
+            Ok(v) => v,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        let fetch_url = parse_value.converted_url;
+        println!("fetch_url:{}", fetch_url);
+        //self.fetch(fetch_url, id);
 
         return Ok(String::from("OK"));
     }

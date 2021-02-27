@@ -1,6 +1,6 @@
 use reqwest::Error;
-use std::fs;
-use std::io;
+use std::io::copy;
+use std::fs::File;
 use tempfile::Builder;
 
 use crate::urlparser::urlparser;
@@ -21,13 +21,19 @@ impl Downloader {
 
     // 参考 https://rust-lang-nursery.github.io/rust-cookbook/web/clients/download.html
     #[tokio::main]
-    async fn fetch(&self, url: String, id: String) -> Result<(), Error> {
-        let dist_dir = self.userpath.workshop_dir.join(id);
-        println!("dist_dir: {}", dist_dir.display());
-
-        //let tmp_dir = Builder::new().prefix("tmp").tempdir()?;
+    async fn fetch(&self, url: String, id: String) -> Result<(), reqwest::Error> {
         let content = reqwest::get(&url).await?.text().await?;
-        println!("{}", content);
+        self.copy_file(&content,id);
+        Ok(())
+    }
+
+    fn copy_file(&self, content: &String, id: String) -> std::io::Result<()>{
+        let dest_path = self.userpath.workshop_dir.join(id).join("download.zip");
+        println!("dest_path: {}", dest_path.display());
+
+        let mut dest_fp = File::create(dest_path)?;
+        copy(&mut content.as_bytes(), &mut dest_fp)?;
+
         Ok(())
     }
 
@@ -41,8 +47,9 @@ impl Downloader {
         };
 
         let fetch_url = parse_value.converted_url;
+        let id = parse_value.id;
         println!("fetch_url:{}", fetch_url);
-        //self.fetch(fetch_url, id);
+        self.fetch(fetch_url, id);
 
         return Ok(String::from("OK"));
     }

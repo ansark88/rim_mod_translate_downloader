@@ -29,7 +29,7 @@ fn decide_workshop_dir() -> PathBuf {
         }
         os_info::Type::Macos => {
             path = PathBuf::from(home_dir);
-            path.push("Library/Application Support/Steam/steamapps/workshop/content/")
+            path.push("Library/Application Support/Steam/steamapps/workshop/content/294100")
         }
         _ => path = PathBuf::from("/hoge/"), // 未対応
     };

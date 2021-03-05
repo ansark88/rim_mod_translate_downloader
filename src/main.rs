@@ -34,5 +34,8 @@ fn main() {
 
     let downloader = downloader::Downloader::new(userpath, url.unwrap().to_string());
 
-    downloader.download();
+    match downloader.download() {
+        Ok(_) => println!("Download Complete!"),
+        Err(e) => println!("Download Error!!! {}", e),
+    }
 }

@@ -2,6 +2,7 @@ pub mod urlparser {
     use std::collections::HashMap;
     use url::Url;
 
+    #[derive(Debug)]
     pub struct ParseValue {
         pub converted_url: String,
         pub id: String,

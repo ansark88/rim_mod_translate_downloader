@@ -1,9 +1,18 @@
-use reqwest::Error;
 use std::fs::File;
 use std::io::copy;
+use thiserror::Error;
 
 use crate::urlparser::urlparser;
 use crate::userpath::UserPath;
+
+#[derive(Error, Debug)]
+enum MyError {
+    #[error(transparent)]
+    Reqwest(#[from] reqwest::Error),
+
+    #[error(transparent)]
+    IO(#[from] std::io::Error),
+}
 
 pub struct Downloader {
     userpath: UserPath,
@@ -12,18 +21,19 @@ pub struct Downloader {
 
 impl Downloader {
     pub fn new(userpath: UserPath, url: String) -> Self {
-        Self {
-            userpath,
-            url,
-        }
+        Self { userpath, url }
     }
 
     // 参考 https://rust-lang-nursery.github.io/rust-cookbook/web/clients/download.html
     #[tokio::main]
-    async fn fetch(&self, url: String, id: String) -> Result<(), reqwest::Error> {
-        //TODO Errorトレイトを返すようにする
-        let content = reqwest::get(&url).await?.text().await?;
-        self.copy_file(&content, id); //TODO: 返り値を実装しよう
+    async fn fetch(&self, url: String, id: String) -> Result<(), MyError> {
+        let content = reqwest::get(&url)
+            .await
+            .map_err(MyError::from)?
+            .text()
+            .await
+            .map_err(MyError::from)?;
+        self.copy_file(&content, id).map_err(MyError::from)?;
         Ok(())
     }
 
@@ -52,8 +62,8 @@ impl Downloader {
 
         let fetch_result = self.fetch(fetch_url, id);
         match fetch_result {
-            Ok(_) => Ok(String::from("OK")),
-            Err(_) => Err(String::from("Download Error"))
+            Ok(_) => Ok(String::from("Fetch OK")),
+            Err(e) => Err(e.to_string()),
         }
     }
 }

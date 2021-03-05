@@ -28,7 +28,7 @@ fn decide_workshop_dir() -> PathBuf {
             path = PathBuf::from(r"C:\Program Files (x86)\Steam\steamapps\workshop\content\294100")
         }
         os_info::Type::Macos => {
-            path = PathBuf::from(home_dir);
+            path = home_dir;
             path.push("Library/Application Support/Steam/steamapps/workshop/content/294100")
         }
         _ => path = PathBuf::from("/hoge/"), // 未対応
@@ -36,5 +36,5 @@ fn decide_workshop_dir() -> PathBuf {
 
     println!("dir: {}", path.display());
 
-    return path;
+    path
 }

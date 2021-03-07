@@ -1,4 +1,3 @@
-use os_info;
 use std::env;
 use std::path::PathBuf;
 

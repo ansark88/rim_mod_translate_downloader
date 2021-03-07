@@ -14,3 +14,4 @@ tempfile = "3.2.0"
 url = "2.2.1"
 tokio = { version = "1", features = ["full"] }
 thiserror = "1.0.24"
+zip = "0.5.11"

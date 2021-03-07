@@ -6,10 +6,12 @@
 // 複数URL対応
 // テスト書く
 use clap::{App, Arg};
+use std::path::Path;
 
 mod downloader;
 mod urlparser;
 mod userpath;
+mod zip_archiver;
 
 fn main() {
     let matches = App::new("rmtd")
@@ -30,12 +32,26 @@ fn main() {
         None => println!("No input url!"),
     }
 
+    // ダウンロード処理
     let userpath = userpath::UserPath::new();
+    let mut downloader = downloader::Downloader::new(userpath, url.unwrap().to_string());
+    let download_result = downloader.download();
 
-    let downloader = downloader::Downloader::new(userpath, url.unwrap().to_string());
-
-    match downloader.download() {
+    match download_result {
         Ok(_) => println!("Download Complete!"),
-        Err(e) => println!("Download Error!!! {}", e),
+        Err(e) => return println!("Download Error!!! {}", e),
+    }
+
+    // Zip解凍処理
+    let dest_path = download_result.unwrap();
+    let directory = dest_path.parent().unwrap_or_else(|| Path::new("/"));
+    let zip_archiver = zip_archiver::ZipArchiver::new(dest_path.clone());
+
+    // Zipファイルと同じディレクトリに解凍する
+    let extract_result = zip_archiver.extract(directory);
+
+    match extract_result {
+        Ok(_) => println!("Complete!!!"),
+        Err(e) => return println!("Error Exit!!! {}", e),
     }
 }

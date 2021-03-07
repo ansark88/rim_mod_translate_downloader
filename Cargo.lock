@@ -802,6 +802,7 @@ dependencies = [
 name = "rim_mod_translate_downloader"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "clap",
  "os_info",
  "reqwest",

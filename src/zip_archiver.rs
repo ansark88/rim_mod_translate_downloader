@@ -23,6 +23,7 @@ impl ZipArchiver {
             Err(e) => return Err(format!("ZipFile Read Error!!!: {}", e.to_string())),
         }
 
+        // Todo: 解凍した時に1段階フォルダが多いケースがある。Languagesフォルダがあるところまで降りる必要がある。それが実装されていない。
         let extract_result = archive.unwrap().extract(directory);
         match extract_result {
             Ok(_) => Ok(()),

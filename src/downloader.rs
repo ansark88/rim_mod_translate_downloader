@@ -1,3 +1,4 @@
+use bytes::Buf;
 use std::fs::File;
 use std::io::copy;
 use std::path::PathBuf;
@@ -34,24 +35,32 @@ impl Downloader {
     // 参考 https://rust-lang-nursery.github.io/rust-cookbook/web/clients/download.html
     #[tokio::main]
     async fn fetch(&mut self, url: String, id: String) -> Result<(), MyError> {
-        let content = reqwest::get(&url)
+        let client = reqwest::Client::builder()
+            .user_agent(format!("custom-user-agent"))
+            .build()?;
+
+        let content = client
+            .get(&url)
+            .send()
             .await
             .map_err(MyError::from)?
-            .text()
+            .bytes()
             .await
             .map_err(MyError::from)?;
-        self.copy_file(&content, id).map_err(MyError::from)?;
+
+        let reader = content.reader(); // std::io::Readを実装しているトレイトを渡す必要があり、reader()メソッドでBufトレイトを返している
+        self.copy_file(reader, id).map_err(MyError::from)?;
         Ok(())
     }
 
-    fn copy_file(&mut self, content: &String, id: String) -> std::io::Result<()> {
+    fn copy_file<R: std::io::Read>(&mut self, mut reader: R, id: String) -> std::io::Result<()> {
         let dest_path = self.user_path.workshop_dir.join(id).join("download.zip");
         println!("dest_path: {}", dest_path.display());
 
         self.dest_path = dest_path.clone();
 
         let mut dest_fp = File::create(dest_path)?;
-        copy(&mut content.as_bytes(), &mut dest_fp)?;
+        copy(&mut reader, &mut dest_fp)?;
 
         Ok(())
     }
